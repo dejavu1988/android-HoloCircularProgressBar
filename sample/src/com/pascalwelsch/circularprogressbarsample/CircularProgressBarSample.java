@@ -53,6 +53,8 @@ public class CircularProgressBarSample extends Activity {
 
     private volatile AtomicInteger repeatAcc = new AtomicInteger(0);
 
+    private final float bootstrapValue = 0.001f;
+
     /*
      * (non-Javadoc)
      *
@@ -123,16 +125,17 @@ public class CircularProgressBarSample extends Activity {
                     mOne.setEnabled(false);
                     mZero.setEnabled(false);
 
+                    mHoloCircularProgressBar.setProgress(bootstrapValue);
                     animate(mHoloCircularProgressBar, new AnimatorListener() {
 
                         @Override
                         public void onAnimationCancel(final Animator animation) {
-                            animation.end();
+                            //animation.end();
                         }
 
                         @Override
                         public void onAnimationEnd(final Animator animation) {
-                            animate(mHoloCircularProgressBar, this);
+                            //animate(mHoloCircularProgressBar, this);
                         }
 
                         @Override
@@ -147,7 +150,6 @@ public class CircularProgressBarSample extends Activity {
                     mAnimationHasEnded = true;
                     mProgressBarAnimator.cancel();
                     mProgressBarAnimator.removeAllUpdateListeners();
-                    mHoloCircularProgressBar.setProgress(0L);
 
                     mOne.setEnabled(true);
                     mZero.setEnabled(true);
@@ -244,10 +246,13 @@ public class CircularProgressBarSample extends Activity {
 
             @Override
             public void onAnimationCancel(final Animator animation) {
+                animation.end();
+                //progressBar.setProgress(bootstrapValue);
             }
 
             @Override
             public void onAnimationEnd(final Animator animation) {
+                repeatAcc.set(0);
                 //mProgressBarAnimator.start();
                 //progressBar.setProgress(progress);
             }
@@ -255,11 +260,12 @@ public class CircularProgressBarSample extends Activity {
             @Override
             public void onAnimationRepeat(final Animator animation) {
                 repeatAcc.incrementAndGet();
-                progressBar.setProgress(0.02f);
+                progressBar.setProgress(bootstrapValue);
             }
 
             @Override
             public void onAnimationStart(final Animator animation) {
+                //progressBar.setProgress(bootstrapValue);
             }
         });
         if (listener != null) {
@@ -279,7 +285,6 @@ public class CircularProgressBarSample extends Activity {
             }
         });
         //progressBar.setMarkerProgress(progress);
-        progressBar.setProgress(0.02f);
         mProgressBarAnimator.start();
     }
 
