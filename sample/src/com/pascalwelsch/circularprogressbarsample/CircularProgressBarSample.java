@@ -22,6 +22,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Switch;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The Class CircularProgressBarSample.
@@ -49,6 +50,8 @@ public class CircularProgressBarSample extends Activity {
     private ObjectAnimator mProgressBarAnimator;
 
     private Button mZero;
+
+    private volatile AtomicInteger repeatAcc = new AtomicInteger(0);
 
     /*
      * (non-Javadoc)
@@ -129,11 +132,7 @@ public class CircularProgressBarSample extends Activity {
 
                         @Override
                         public void onAnimationEnd(final Animator animation) {
-                            if (!mAnimationHasEnded) {
-                                animate(mHoloCircularProgressBar, this);
-                            } else {
-                                mAnimationHasEnded = false;
-                            }
+                            animate(mHoloCircularProgressBar, this);
                         }
 
                         @Override
@@ -147,6 +146,8 @@ public class CircularProgressBarSample extends Activity {
                 } else {
                     mAnimationHasEnded = true;
                     mProgressBarAnimator.cancel();
+                    mProgressBarAnimator.removeAllUpdateListeners();
+                    mHoloCircularProgressBar.setProgress(0L);
 
                     mOne.setEnabled(true);
                     mZero.setEnabled(true);
@@ -226,8 +227,8 @@ public class CircularProgressBarSample extends Activity {
      */
     private void animate(final HoloCircularProgressBar progressBar,
             final AnimatorListener listener) {
-        final float progress = (float) (Math.random() * 2);
-        int duration = 3000;
+        final float progress = 1f;//(float) (Math.random() * 2);
+        int duration = 60* 1000;
         animate(progressBar, listener, progress, duration);
     }
 
@@ -236,6 +237,8 @@ public class CircularProgressBarSample extends Activity {
 
         mProgressBarAnimator = ObjectAnimator.ofFloat(progressBar, "progress", progress);
         mProgressBarAnimator.setDuration(duration);
+        mProgressBarAnimator.setRepeatMode(ValueAnimator.RESTART);
+        mProgressBarAnimator.setRepeatCount(repeatAcc.get());
 
         mProgressBarAnimator.addListener(new AnimatorListener() {
 
@@ -245,11 +248,14 @@ public class CircularProgressBarSample extends Activity {
 
             @Override
             public void onAnimationEnd(final Animator animation) {
-                progressBar.setProgress(progress);
+                //mProgressBarAnimator.start();
+                //progressBar.setProgress(progress);
             }
 
             @Override
             public void onAnimationRepeat(final Animator animation) {
+                repeatAcc.incrementAndGet();
+                progressBar.setProgress(0.02f);
             }
 
             @Override
@@ -259,15 +265,21 @@ public class CircularProgressBarSample extends Activity {
         if (listener != null) {
             mProgressBarAnimator.addListener(listener);
         }
-        mProgressBarAnimator.reverse();
+        //mProgressBarAnimator.reverse();
         mProgressBarAnimator.addUpdateListener(new AnimatorUpdateListener() {
 
             @Override
             public void onAnimationUpdate(final ValueAnimator animation) {
-                progressBar.setProgress((Float) animation.getAnimatedValue());
+                float value = (Float) animation.getAnimatedValue();
+                Log.d(TAG, "### value: " + value);
+                progressBar.setProgress(value);
+                if (progress - value < 0.1 && mProgressBarAnimator.getRepeatCount() == repeatAcc.get()) {
+                    mProgressBarAnimator.setRepeatCount(repeatAcc.get() + 1);
+                }
             }
         });
-        progressBar.setMarkerProgress(progress);
+        //progressBar.setMarkerProgress(progress);
+        progressBar.setProgress(0.02f);
         mProgressBarAnimator.start();
     }
 

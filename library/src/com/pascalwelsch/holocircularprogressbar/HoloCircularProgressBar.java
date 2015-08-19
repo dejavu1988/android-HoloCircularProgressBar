@@ -251,7 +251,7 @@ public class HoloCircularProgressBar extends View {
                 setThumbEnabled(attributes
                         .getBoolean(R.styleable.HoloCircularProgressBar_thumb_visible, true));
                 setMarkerEnabled(attributes
-                        .getBoolean(R.styleable.HoloCircularProgressBar_marker_visible, true));
+                        .getBoolean(R.styleable.HoloCircularProgressBar_marker_visible, false));
 
                 mGravity = attributes
                         .getInt(R.styleable.HoloCircularProgressBar_android_gravity,
@@ -475,8 +475,9 @@ public class HoloCircularProgressBar extends View {
      * @param progress the new marker progress
      */
     public void setMarkerProgress(final float progress) {
-        mIsMarkerEnabled = true;
-        mMarkerProgress = progress;
+        //mIsMarkerEnabled = true;
+        if(mIsMarkerEnabled)
+            mMarkerProgress = progress;
     }
 
     /**
